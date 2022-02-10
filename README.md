@@ -1,2 +1,2 @@
-# Real-time scraping from Strava.com using Selenium and Kafka
+# Near real-time scraping from Strava.com using Selenium and Kafka
 
