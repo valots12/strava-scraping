@@ -16,6 +16,16 @@ for message in consumer:
     message = message.value
     diz.update(message)
 
-a_file = open("dictionary_scraping/dictionary_activities.pkl", "wb")
-pickle.dump(diz, a_file)
-a_file.close()
+client = MongoClient('localhost:27017')
+
+#Database 
+db = client["Strava"]
+
+#Collection
+collection = db["INSERT TOPIC NAME"]
+
+for el in diz:
+    j = prova[el]
+    j["ID"] = el
+    #Insert each document in the collection
+    collection.insert_one(j)
