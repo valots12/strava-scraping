@@ -1,7 +1,6 @@
 from kafka import KafkaConsumer
-from datetime import datetime
-import time
-import pickle
+import pymongo
+from pymongo import MongoClient
 
 consumer = KafkaConsumer(
     'INSERT TOPIC NAME',
