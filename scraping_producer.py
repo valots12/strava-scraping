@@ -30,10 +30,11 @@ driver.find_element_by_id("login-button").click()
 
 diz = {}
 start_time = time.time()
+lag = #INSERT NUMBER OF ACTIVITY TO SKIP FROM THE PREVIOUS ONE (1 to collect all the activities)
 seconds = #INSERT DESIDERED SCRAPING TIME IN SECONDS
 i = #INSERT INITIAL ID ACTIVITY
-#YOU CAN CREATE A FICTITIOUS ACTIVITY AND TAKE ITS ID FOR NEAR REAL-TIME SCRAPING
-#EACH ACTIVITY FOLLOWS THE FOLLOWING URL STRUCTURE: https://www.strava.com/activities/NUMBER_ID/overview
+#You can create a fictitious activity and take its ID for near real-time scraping
+#Each activity follows the following URL structure: https://www.strava.com/activities/NUMBER_ID/overview
 
 while True:
     driver.get('https://www.strava.com/activities/' + str(i) + '/overview')
@@ -65,6 +66,7 @@ while True:
             if len(details)>1:
                 diz[i]['daytime']['day'] = details[1].strip()
 
+        #Looking for the number of kodus makes sense only for non real-time activities
         kudos = driver.find_element_by_class_name("count").text
         diz[i]['social'] = {}
         diz[i]['social']['kudos'] = kudos
@@ -74,15 +76,15 @@ while True:
             list.append(li.text)
         diz[i]['statistics'] = list
 
-        i+=100
+        i+=lag
 
     except NoSuchElementException:
-        i+=100
+        i+=lag
 
-    if (i-100) in diz.keys():
+    if (i-lag) in diz.keys():
         try:
             location = driver.find_element_by_class_name("location").text
-            diz[i-100]['location'] = location
+            diz[i-lag]['location'] = location
         except NoSuchElementException:
             pass
 
@@ -95,10 +97,10 @@ while True:
                 list2.append(li.text)
 
             if len(list1)>0:
-                diz[i-100]['weather'] = {}
-                diz[i-100]['weather']['Condition'] = list1[0]
+                diz[i-lag]['weather'] = {}
+                diz[i-lag]['weather']['Condition'] = list1[0]
                 for j in range(1,len(list1)):
-                    diz[i-100]['weather'][list1[j]] = list2[j-1]
+                    diz[i-lag]['weather'][list1[j]] = list2[j-1]
         except NoSuchElementException:
             pass
 
@@ -107,7 +109,7 @@ while True:
             for li in driver.find_elements_by_xpath("//ul[@class='inline-stats section secondary-stats']/li/strong"):
                 list.append(li.text)
             if len(list)>0:
-                diz[i-100]['statistics_advanced'] = list
+                diz[i-lag]['statistics_advanced'] = list
         except NoSuchElementException:
             pass
 
@@ -116,26 +118,27 @@ while True:
             for li in driver.find_elements_by_xpath("//div[@class='section more-stats']/div/div/strong"):
                 list.append(li.text)
             if len(list)>0:
-                diz[i-100]['more_statistics'] = list
+                diz[i-lag]['more_statistics'] = list
         except NoSuchElementException:
             pass
 
         try:
+            #Looking for comments makes sense only for non real-time activities
             comments = driver.find_element_by_id("comments").text
             if int(comments)>0:
                 driver.find_element_by_id("comments").click()
                 list=[]
                 for li in  driver.find_elements_by_xpath("//div[@class='comment-text']"):
                     list.append(li.text)
-                diz[i-100]['social']['comments'] = list
+                diz[i-lag]['social']['comments'] = list
         except NoSuchElementException:
             pass
 
-        if diz[i-100]['activity'] == 'Ciclismo' or diz[i-100]['activity'] == 'Pedalata con e-bike' or diz[i-100]['activity'] == 'Handbike' or diz[i-100]['activity'] == 'Pedalata virtuale':
+        if diz[i-lag]['activity'] == 'Ciclismo' or diz[i-lag]['activity'] == 'Pedalata con e-bike' or diz[i-lag]['activity'] == 'Handbike' or diz[i-lag]['activity'] == 'Pedalata virtuale':
             producer.send('Ciclismo', value=diz)
-        elif diz[i-100]['activity'] == 'Corsa' or diz[i-100]['activity'] == 'Corsa virtuale':
+        elif diz[i-lag]['activity'] == 'Corsa' or diz[i-lag]['activity'] == 'Corsa virtuale':
             producer.send('Corsa', value=diz)
-        elif diz[i-100]['activity'] == 'Nuotata' or diz[i-100]['activity'] == 'Canoa' or diz[i-100]['activity'] == 'Kayak' or diz[i-100]['activity'] == 'Kitesurf' or diz[i-100]['activity'] == 'Canottaggio' or diz[i-100]['activity'] == 'Surf' or diz[i-100]['activity'] == 'Windsurf' or diz[i-100]['activity'] == 'Stand Up Paddle':
+        elif diz[i-lag]['activity'] == 'Nuotata' or diz[i-lag]['activity'] == 'Canoa' or diz[i-lag]['activity'] == 'Kayak' or diz[i-lag]['activity'] == 'Kitesurf' or diz[i-lag]['activity'] == 'Canottaggio' or diz[i-lag]['activity'] == 'Surf' or diz[i-lag]['activity'] == 'Windsurf' or diz[i-lag]['activity'] == 'Stand Up Paddle':
             producer.send('Sport_Acquatici', value=diz)
         else:
             producer.send('Altro', value=diz)
