@@ -1,6 +1,6 @@
 # Near real-time scraping from Strava.com using Selenium and Kafka
 
-***Part of Data Management project | UniMiB***
+***Part of the Data Management project | UniMiB***
 
 The purpose of the project is to create a collection of Strava activities and make them available according to user's sport preference through Kafka (possible topics are: Running, Cycling, Water sports and Other).
 
